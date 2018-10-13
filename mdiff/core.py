@@ -167,28 +167,6 @@ def is_changed(node, fingerprint):
         return not fingerprint == origin_fingerprint
 
 
-def _update_verifier(node, address):
-    """Internal function for updating verifier value
-    """
-    _add_attr(node, ATTR_VERIFIER)
-    verifier = _generate_verifier(read_uuid(node), address)
-    _set_attr(node, ATTR_VERIFIER, verifier)
-
-
-def update_fingerprint(node, fingerprint):
-    """Update node's fingerprint
-
-    MUST do this if `is_changed` return True.
-
-    Arguments:
-        node (str): Maya node name
-        fingerprint (str): Maya node's hash value
-
-    """
-    _add_attr(node, ATTR_FINGERPRINT)
-    _set_attr(node, ATTR_FINGERPRINT, fingerprint)
-
-
 def status(node, fingerprint):
     """Does this node have to renew it's ID ?
 
@@ -216,6 +194,28 @@ def update_identity(node, fingerprint):
     address = _generate_address()
     _set_attr(node, ATTR_ADDRESS, address)
     update_fingerprint(node, fingerprint)
+
+
+def update_fingerprint(node, fingerprint):
+    """Update node's fingerprint
+
+    MUST do this if `is_changed` return True.
+
+    Arguments:
+        node (str): Maya node name
+        fingerprint (str): Maya node's hash value
+
+    """
+    _add_attr(node, ATTR_FINGERPRINT)
+    _set_attr(node, ATTR_FINGERPRINT, fingerprint)
+
+
+def _update_verifier(node, address):
+    """Internal function for updating verifier value
+    """
+    _add_attr(node, ATTR_VERIFIER)
+    verifier = _generate_verifier(read_uuid(node), address)
+    _set_attr(node, ATTR_VERIFIER, verifier)
 
 
 def lock_identity(nodes):
