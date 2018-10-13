@@ -1,6 +1,6 @@
 <h1 align=center>Maya-Diff</h1>
 
-<p align=center><i><b>An ID renew logic for modification tracking in Maya pipeline</b>,<br>that able to tell you which node is untracked and need identity update in production.<br>(require node hashing for change detection)</br></i></p>
+<p align=center><i><b>An ID renew logic for modification tracking in Maya pipeline</b>,<br>that able to tell you which node is untracked and need identity update on demand.<br>(require node hashing for change detection)</br></i></p>
 
 
 <p align=center><i>This is a proof of concept, currently testing in production</i></p>
@@ -62,46 +62,84 @@ Now, we can answer those three questions:
 
 ### Demo
 
+A simple walkthrough
+
+##### Preparation
+
 ```python
 import maya.cmds as cmds
 import mdiff.api
 
+# Make a simple transfrom matrix hasher
+matrix_hasher = (lambda node: str(cmds.xform(node, query=True, matrix=True)))
+
+```
+
+##### Create a new asset
+
+```python
 node = cmds.polyCube(name="origin")[0]
-# Use matrix as fingerprint
-mhasher = (lambda node: str(cmds.xform(node, query=True, matrix=True)))
-fingerprint = mhasher(node)
-
+# Hash it
+fingerprint = matrix_hasher(node)
 # Since this is a new node, renew is a must
-assert mdiff.api.is_update_required(node, fingerprint)
-# Update it
-mdiff.api.update_identity(node, fingerprint)
+state = mdiff.api.status(node, fingerprint)
+assert state == mdiff.api.Untracked
+# Register
+mdiff.api.on_track(node, fingerprint)
 
-# Now move the node around and hash it again
+```
+
+##### Change
+
+```python
+# Move the node around
 cmds.setAttr(node + ".tx", 5)
-fingerprint = mhasher(node)
-# Let's check it's been changed or not
-assert mdiff.api.is_changed(node, fingerprint)
-# it's been changed but is original, no need to renew
-assert not mdiff.api.is_update_required(node, fingerprint)
-# But we still need to update it's fingerprint
-mdiff.api.update_fingerprint(node, fingerprint)
+# Hash it
+fingerprint = matrix_hasher(node)
+# Check
+state = mdiff.api.status(node, fingerprint)
+assert state == mdiff.api.Changed
+# it's been changed but is original, update fingerprint
+mdiff.api.on_change(node, fingerprint)
 
-# Duplicate it !
+```
+
+##### Duplicate
+
+```python
 clone = cmds.duplicate(node, name="clone")[0]
-# Let's check it's duplicated or not
-assert mdiff.api.is_duplicated(clone)
-# it's duplicated but not changed, no need to renew
-assert not mdiff.api.is_update_required(node, mhasher(node))
+# Check
+fingerprint = matrix_hasher(node)
+state = mdiff.api.status(clone, fingerprint)
+assert state == mdiff.api.Duplicated
+# Although it's not changed but is a duplicate, update verifier
+mdiff.api.on_duplicate(clone)
 
-# Now move the clone !
+```
+
+##### Duplicate & Change
+
+```python
+rogue = cmds.duplicate(node, name="rogue")[0]
+# Now move the rogue !
 cmds.setAttr(node + ".ty", 10)
-fingerprint = mhasher(clone)
-# Let's check it's been changed or not
-assert mdiff.api.is_changed(clone, fingerprint)
+# Check
+fingerprint = matrix_hasher(node)
+state = mdiff.api.status(clone, fingerprint)
+assert state == mdiff.api.Untracked
 # it's been changed and is a duplicate, need to renew !
-assert mdiff.api.is_update_required(clone, fingerprint)
-# Update identity and fingerprint
-mdiff.api.update_identity(clone, fingerprint)
+mdiff.api.on_track(clone, fingerprint)
+
+```
+
+To simplify, you can use `api.manage`
+
+```python
+foo = "A node that you don't need to overwatch"
+fingerprint = my_hasher(foo)
+state = mdiff.api.status(foo, fingerprint)
+# Auto update node by state
+mdiff.api.manage(foo, fingerprint, state)
 
 ```
 
@@ -113,21 +151,37 @@ mdiff.api.update_identity(clone, fingerprint)
 import mdiff.api
 
 for node in nodes:
+    # Make fingerprint
+    fingerprint = my_hasher(node)
+    # Check status
+    state = mdiff.api.status(node, fingerprint)
+    # Auto management
+    mdiff.api.manage(node, fingerprint, state)
+
+```
+
+OR
+
+```python
+import mdiff.api
+
+for node in nodes:
     # make fingerprint
     fingerprint = my_hasher(node)
-
-    if mdiff.api.is_update_required(node, fingerprint):
+    # Check status
+    state = mdiff.api.status(node, fingerprint)
+    # Manual management
+    if state == mdiff.api.Untracked:
         ...  # do something
-        mdiff.api.update_identity(node, fingerprint)
+        mdiff.api.on_track(node, fingerprint)
 
-    elif mdiff.api.is_changed(node, fingerprint):
+    elif state == mdiff.api.Changed:
         ...  # do something
-        mdiff.api.update_fingerprint(node, fingerprint)
+        mdiff.api.on_change(node, fingerprint)
 
-    else:
+    elif state == mdiff.api.Duplicated:
         ...  # do something
-
-mdiff.api.lock_identity(nodes)
+        mdiff.api.on_duplicate(node)
 
 ```
 
@@ -136,6 +190,7 @@ mdiff.api.lock_identity(nodes)
 import mdiff.api
 
 nodes = cmds.file("path/to/scene", i=True, returnNewNodes=True)
-mdiff.api.lock_identity(nodes)
+# Update identity on Maya UUID changed
+mdiff.api.update_verifiers(nodes)
 
 ```
