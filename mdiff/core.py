@@ -190,8 +190,8 @@ def update_identity(node, fingerprint):
         fingerprint (str): Maya node's hash value
 
     """
-    _add_attr(node, ATTR_ADDRESS)
     address = _generate_address()
+    _add_attr(node, ATTR_ADDRESS)
     _set_attr(node, ATTR_ADDRESS, address)
     update_fingerprint(node, fingerprint)
 
@@ -224,8 +224,8 @@ def update_verifier(node):
     if address is None:
         return
 
-    _add_attr(node, ATTR_VERIFIER)
     verifier = _generate_verifier(read_uuid(node), address)
+    _add_attr(node, ATTR_VERIFIER)
     _set_attr(node, ATTR_VERIFIER, verifier)
 
 
