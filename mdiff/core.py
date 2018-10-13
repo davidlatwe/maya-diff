@@ -33,9 +33,7 @@ def _add_attr(node, attr):
         cmds.addAttr(node, longName=attr, dataType="string")
     except RuntimeError:
         # Attribute existed
-        return False
-    else:
-        return True
+        pass
 
 
 def _set_attr(node, attr, value):
@@ -44,10 +42,8 @@ def _set_attr(node, attr, value):
     try:
         cmds.setAttr(node + "." + attr, value, type="string")
     except RuntimeError:
-        # Attribute existed
-        return False
-    else:
-        return True
+        # Attribute not existed
+        pass
 
 
 def read_address(node):
