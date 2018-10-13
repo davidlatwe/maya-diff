@@ -138,13 +138,9 @@ def _update_fingerprint(node, fingerprint):
 def is_update_required(node, fingerprint):
     """
     """
-    if is_changed(node, fingerprint):
-        if is_duplicated(node):
-            return True
-        else:
-            return False
-    else:
-        return False
+    if is_changed(node, fingerprint) and is_duplicated(node):
+        return True
+    return False
 
 
 def update_identity(node, fingerprint):
