@@ -3,6 +3,9 @@
 <p align=center><i><b>An ID renew logic for modification tracking in Maya pipeline</b>,<br>that able to tell you which node is untracked and need identity update in production.<br>(require node hashing for change detection)</br></i></p>
 
 
+<p align=center><i>This is a proof of concept, currently testing in production</i></p>
+
+
 ### Motivation
 
 When using custom ID on nodes for mapping with other nodes or data that need to connect with or apply to, might require to ensure the node IDs in one artist's scene are consisted with or tracked in pipeline. That wasn't easy, especially after file-import or node's duplication happened.
