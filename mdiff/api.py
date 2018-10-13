@@ -2,10 +2,11 @@
 from .core import (
     status,
     update,
+    lock_identity,
+
     update_identity,
     update_fingerprint,
     update_verifier,
-    lock_identity,
 
     is_duplicated,
     is_changed,
@@ -24,10 +25,11 @@ from .core import (
 __all__ = (
     "status",
     "update",
+    "lock_identity",
+
     "update_identity",
     "update_fingerprint",
     "update_verifier",
-    "lock_identity",
 
     "is_duplicated",
     "is_changed",
