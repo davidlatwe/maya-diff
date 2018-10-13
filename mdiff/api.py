@@ -16,6 +16,11 @@ from .core import (
     read_verifier,
     read_fingerprint,
 
+    Clean,
+    Changed,
+    Duplicated,
+    Untracked,
+
     ATTR_ADDRESS,
     ATTR_VERIFIER,
     ATTR_FINGERPRINT,
@@ -38,6 +43,11 @@ __all__ = (
     "read_address",
     "read_verifier",
     "read_fingerprint",
+
+    "Clean",
+    "Changed",
+    "Duplicated",
+    "Untracked",
 
     "ATTR_ADDRESS",
     "ATTR_VERIFIER",
