@@ -1,6 +1,7 @@
 
 from .core import (
     status,
+    update,
     update_identity,
     update_fingerprint,
     update_verifier,
@@ -22,6 +23,7 @@ from .core import (
 
 __all__ = (
     "status",
+    "update",
     "update_identity",
     "update_fingerprint",
     "update_verifier",

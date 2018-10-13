@@ -217,7 +217,7 @@ def update_fingerprint(node, fingerprint):
     _set_attr(node, ATTR_FINGERPRINT, fingerprint)
 
 
-def update_verifier(node):
+def update_verifier(node, *args):
     """Update node's verifier
 
     MUST do this if `status` return flag `api.Duplicated`.
@@ -234,6 +234,19 @@ def update_verifier(node):
     verifier = _generate_verifier(read_uuid(node), address)
     _add_attr(node, ATTR_VERIFIER)
     _set_attr(node, ATTR_VERIFIER, verifier)
+
+
+__action_map = {
+    Clean: (lambda n, f: None),
+    Changed: update_fingerprint,
+    Duplicated: update_verifier,
+    Untracked: update_identity,
+}
+
+
+def update(node, fingerprint, state):
+    action = __action_map[state]
+    action(node, fingerprint)
 
 
 def lock_identity(nodes):
