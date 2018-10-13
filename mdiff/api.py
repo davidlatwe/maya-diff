@@ -2,11 +2,11 @@
 from .core import (
     status,
     manage,
-    lock_identity,
+    update_verifiers,
 
-    update_identity,
-    update_fingerprint,
-    update_verifier,
+    on_track,
+    on_change,
+    on_duplicate,
 
     is_duplicated,
     is_changed,
@@ -30,11 +30,11 @@ from .core import (
 __all__ = (
     "status",
     "manage",
-    "lock_identity",
+    "update_verifiers",
 
-    "update_identity",
-    "update_fingerprint",
-    "update_verifier",
+    "on_track",
+    "on_change",
+    "on_duplicate",
 
     "is_duplicated",
     "is_changed",

@@ -187,7 +187,7 @@ def status(node, fingerprint):
     return is_changed(node, fingerprint) | (is_duplicated(node) << 1)
 
 
-def update_identity(node, fingerprint):
+def on_track(node, fingerprint):
     """Update node's address and fingerprint
 
     MUST do this if `status` return flag `api.Untracked`.
@@ -200,10 +200,10 @@ def update_identity(node, fingerprint):
     address = _generate_address()
     _add_attr(node, ATTR_ADDRESS)
     _set_attr(node, ATTR_ADDRESS, address)
-    update_fingerprint(node, fingerprint)
+    on_change(node, fingerprint)
 
 
-def update_fingerprint(node, fingerprint):
+def on_change(node, fingerprint):
     """Update node's fingerprint
 
     MUST do this if `status` return flag `api.Changed`.
@@ -217,7 +217,7 @@ def update_fingerprint(node, fingerprint):
     _set_attr(node, ATTR_FINGERPRINT, fingerprint)
 
 
-def update_verifier(node, *args):
+def on_duplicate(node, *args):
     """Update node's verifier
 
     MUST do this if `status` return flag `api.Duplicated`.
@@ -238,9 +238,9 @@ def update_verifier(node, *args):
 
 __action_map = {
     Clean: (lambda n, f: None),
-    Changed: update_fingerprint,
-    Duplicated: update_verifier,
-    Untracked: update_identity,
+    Changed: on_change,
+    Duplicated: on_duplicate,
+    Untracked: on_track,
 }
 
 
@@ -257,7 +257,7 @@ def manage(node, fingerprint, state):
     action(node, fingerprint)
 
 
-def lock_identity(nodes):
+def update_verifiers(nodes):
     """Update input nodes' verifier
 
     MUST do this on file-import.
@@ -267,7 +267,7 @@ def lock_identity(nodes):
 
     """
     for node in nodes:
-        update_verifier(node)
+        on_duplicate(node)
 
 
 def get_time(node):
