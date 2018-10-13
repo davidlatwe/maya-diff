@@ -136,7 +136,7 @@ def _update_verifier(node, address):
     _set_attr(node, ATTR_VERIFIER, verifier)
 
 
-def _update_fingerprint(node, fingerprint):
+def update_fingerprint(node, fingerprint):
     """
     """
     _add_attr(node, ATTR_FINGERPRINT)
@@ -157,7 +157,7 @@ def update_identity(node, fingerprint):
     _add_attr(node, ATTR_ADDRESS)
     address = _generate_address()
     _set_attr(node, ATTR_ADDRESS, address)
-    _update_fingerprint(node, fingerprint)
+    update_fingerprint(node, fingerprint)
 
 
 def lock_identity(nodes):
