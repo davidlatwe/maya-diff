@@ -1,7 +1,7 @@
 
 from .core import (
     status,
-    update,
+    manage,
     lock_identity,
 
     update_identity,
@@ -24,7 +24,7 @@ from .core import (
 
 __all__ = (
     "status",
-    "update",
+    "manage",
     "lock_identity",
 
     "update_identity",

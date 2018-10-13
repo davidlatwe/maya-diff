@@ -244,7 +244,15 @@ __action_map = {
 }
 
 
-def update(node, fingerprint, state):
+def manage(node, fingerprint, state):
+    """Auto update node's identity attributes by input state
+
+    Arguments:
+        node (str): Maya node name
+        fingerprint (str): Maya node's hash value
+        state (int): State flag returned from `status`
+
+    """
     action = __action_map[state]
     action(node, fingerprint)
 
