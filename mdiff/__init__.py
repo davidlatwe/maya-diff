@@ -1,5 +1,5 @@
 
-from . import api, utils
+from . import api
 
 from .version import (
     version,
@@ -10,7 +10,6 @@ from .version import (
 
 __all__ = (
     "api",
-    "utils",
     "__version__",
     "version",
     "version_info",
