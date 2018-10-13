@@ -109,7 +109,7 @@ mdiff.api.on_change(node, fingerprint)
 ```python
 clone = cmds.duplicate(node, name="clone")[0]
 # Check
-fingerprint = matrix_hasher(node)
+fingerprint = matrix_hasher(clone)
 state = mdiff.api.status(clone, fingerprint)
 assert state == mdiff.api.Duplicated
 # Although it's not changed but is a duplicate, update verifier
@@ -122,13 +122,13 @@ mdiff.api.on_duplicate(clone)
 ```python
 rogue = cmds.duplicate(node, name="rogue")[0]
 # Now move the rogue !
-cmds.setAttr(node + ".ty", 10)
+cmds.setAttr(rogue + ".ty", 10)
 # Check
-fingerprint = matrix_hasher(node)
-state = mdiff.api.status(clone, fingerprint)
+fingerprint = matrix_hasher(rogue)
+state = mdiff.api.status(rogue, fingerprint)
 assert state == mdiff.api.Untracked
 # it's been changed and is a duplicate, need to renew !
-mdiff.api.on_track(clone, fingerprint)
+mdiff.api.on_track(rogue, fingerprint)
 
 ```
 
