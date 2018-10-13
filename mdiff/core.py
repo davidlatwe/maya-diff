@@ -18,7 +18,7 @@ ATTR_FINGERPRINT = "fingerprint"
 
 
 def _get_attr(node, attr):
-    """
+    """Internal function for attribute getting
     """
     try:
         return cmds.getAttr(node + "." + attr)
@@ -27,7 +27,7 @@ def _get_attr(node, attr):
 
 
 def _add_attr(node, attr):
-    """
+    """Internal function for attribute adding
     """
     try:
         cmds.addAttr(node, longName=attr, dataType="string")
@@ -37,7 +37,7 @@ def _add_attr(node, attr):
 
 
 def _set_attr(node, attr, value):
-    """
+    """Internal function for attribute setting
     """
     try:
         cmds.setAttr(node + "." + attr, value, type="string")
@@ -47,25 +47,41 @@ def _set_attr(node, attr, value):
 
 
 def read_address(node):
-    """
+    """Read address value from node
+
+    Arguments:
+        node (str): Maya node name
+
     """
     return _get_attr(node, ATTR_ADDRESS)
 
 
 def read_verifier(node):
-    """
+    """Read verifier value from node
+
+    Arguments:
+        node (str): Maya node name
+
     """
     return _get_attr(node, ATTR_VERIFIER)
 
 
 def read_fingerprint(node):
-    """
+    """Read fingerprint value from node
+
+    Arguments:
+        node (str): Maya node name
+
     """
     return _get_attr(node, ATTR_FINGERPRINT)
 
 
 def read_uuid(node):
-    """
+    """Read uuid value from node
+
+    Arguments:
+        node (str): Maya node name
+
     """
     muuid = cmds.ls(node, uuid=True)
     if not len(muuid):
@@ -77,7 +93,11 @@ def read_uuid(node):
 
 
 def _generate_address():
-    """
+    """Internal function for generating time-embedded ID address
+
+    Note:
+        `bson.ObjectId` is about 1 time faster then `uuid.uuid1`.
+
     """
     try:
         return str(bson.ObjectId())  # bson is faster
@@ -86,7 +106,7 @@ def _generate_address():
 
 
 def _generate_verifier(muuid, address):
-    """Generate a hash value from Maya UUID and address
+    """Internal function for generating hash value from Maya UUID and address
 
     Arguments:
         muuid (str): Maya UUID string
@@ -102,7 +122,14 @@ def _generate_verifier(muuid, address):
 
 
 def is_duplicated(node):
-    """
+    """Is this node a duplicate ?
+
+    Return True if the `node` is a duplicate, by comparing the `verifier`
+    attribute.
+
+    Arguments:
+        node (str): Maya node name
+
     """
     address = read_address(node)
     verifier = read_verifier(node)
@@ -116,7 +143,14 @@ def is_duplicated(node):
 
 
 def is_changed(node, fingerprint):
-    """
+    """Has this node been modified ?
+
+    Return True if the `node` has been changed, by comparing the `fingerprint`
+
+    Arguments:
+        node (str): Maya node name
+        fingerprint (str): Maya node's hash value
+
     """
     origin_fingerprint = read_fingerprint(node)
 
@@ -129,7 +163,7 @@ def is_changed(node, fingerprint):
 
 
 def _update_verifier(node, address):
-    """
+    """Internal function for updating verifier value
     """
     _add_attr(node, ATTR_VERIFIER)
     verifier = _generate_verifier(read_uuid(node), address)
@@ -137,14 +171,28 @@ def _update_verifier(node, address):
 
 
 def update_fingerprint(node, fingerprint):
-    """
+    """Update node's fingerprint
+
+    MUST do this if `is_changed` return True.
+
+    Arguments:
+        node (str): Maya node name
+        fingerprint (str): Maya node's hash value
+
     """
     _add_attr(node, ATTR_FINGERPRINT)
     _set_attr(node, ATTR_FINGERPRINT, fingerprint)
 
 
 def is_update_required(node, fingerprint):
-    """
+    """Does this node have to renew it's ID ?
+
+    Return True if the `node` has been changed and is a duplicate.
+
+    Arguments:
+        node (str): Maya node name
+        fingerprint (str): Maya node's hash value
+
     """
     if is_changed(node, fingerprint) and is_duplicated(node):
         return True
@@ -152,7 +200,14 @@ def is_update_required(node, fingerprint):
 
 
 def update_identity(node, fingerprint):
-    """
+    """Update node's address and fingerprint
+
+    MUST do this if `is_update_required` return True.
+
+    Arguments:
+        node (str): Maya node name
+        fingerprint (str): Maya node's hash value
+
     """
     _add_attr(node, ATTR_ADDRESS)
     address = _generate_address()
@@ -161,7 +216,13 @@ def update_identity(node, fingerprint):
 
 
 def lock_identity(nodes):
-    """
+    """Update each node's verifier
+
+    MUST do this before file save or publish.
+
+    Arguments:
+        nodes (list): A list of Maya node name
+
     """
     for node in nodes:
         address = read_address(node)
@@ -172,7 +233,7 @@ def lock_identity(nodes):
 def get_time(node):
     """Retrive datetime object from Maya node
 
-    A little bonus gained from datetime embedded id
+    A little bonus gained from datetime embedded id.
 
     Arguments:
         node (str): Maya node name
