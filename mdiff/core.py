@@ -210,16 +210,27 @@ def update_fingerprint(node, fingerprint):
     _set_attr(node, ATTR_FINGERPRINT, fingerprint)
 
 
-def _update_verifier(node, address):
-    """Internal function for updating verifier value
+def update_verifier(node):
+    """Update node's verifier
+
+    MUST do this if `is_changed` return True.
+
+    Arguments:
+        node (str): Maya node name
+        fingerprint (str): Maya node's hash value
+
     """
+    address = read_address(node)
+    if address is None:
+        return
+
     _add_attr(node, ATTR_VERIFIER)
     verifier = _generate_verifier(read_uuid(node), address)
     _set_attr(node, ATTR_VERIFIER, verifier)
 
 
 def lock_identity(nodes):
-    """Update each node's verifier
+    """Update input nodes' verifier
 
     MUST do this before file save or publish.
 
@@ -228,9 +239,7 @@ def lock_identity(nodes):
 
     """
     for node in nodes:
-        address = read_address(node)
-        if address is not None:
-            _update_verifier(node, address)
+        update_verifier(node)
 
 
 def get_time(node):

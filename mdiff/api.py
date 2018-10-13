@@ -3,6 +3,7 @@ from .core import (
     status,
     update_identity,
     update_fingerprint,
+    update_verifier,
     lock_identity,
 
     is_duplicated,
@@ -23,6 +24,7 @@ __all__ = (
     "status",
     "update_identity",
     "update_fingerprint",
+    "update_verifier",
     "lock_identity",
 
     "is_duplicated",
