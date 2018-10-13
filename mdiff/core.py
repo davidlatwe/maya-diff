@@ -169,7 +169,8 @@ def lock_identity(nodes):
     """
     for node in nodes:
         address = read_address(node)
-        _update_verifier(node, address)
+        if address is not None:
+            _update_verifier(node, address)
 
 
 def get_time(node):
