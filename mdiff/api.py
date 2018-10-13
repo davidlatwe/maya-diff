@@ -2,6 +2,7 @@
 from .core import (
     is_update_required,
     update_identity,
+    update_fingerprint,
     lock_identity,
 
     is_duplicated,
@@ -21,6 +22,7 @@ from .core import (
 __all__ = (
     "is_update_required",
     "update_identity",
+    "update_fingerprint",
     "lock_identity",
 
     "is_duplicated",
