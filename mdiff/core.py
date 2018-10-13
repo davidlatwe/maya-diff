@@ -16,6 +16,11 @@ ATTR_ADDRESS = "address"
 ATTR_VERIFIER = "verifier"
 ATTR_FINGERPRINT = "fingerprint"
 
+Clean = 0
+Changed = 1
+Duplicated = 2
+Untracked = 3
+
 
 def _get_attr(node, attr):
     """Internal function for attribute getting
@@ -184,7 +189,7 @@ def update_fingerprint(node, fingerprint):
     _set_attr(node, ATTR_FINGERPRINT, fingerprint)
 
 
-def is_update_required(node, fingerprint):
+def status(node, fingerprint):
     """Does this node have to renew it's ID ?
 
     Return True if the `node` has been changed and is a duplicate.
@@ -194,15 +199,13 @@ def is_update_required(node, fingerprint):
         fingerprint (str): Maya node's hash value
 
     """
-    if is_changed(node, fingerprint) and is_duplicated(node):
-        return True
-    return False
+    return is_changed(node, fingerprint) | (is_duplicated(node) << 1)
 
 
 def update_identity(node, fingerprint):
     """Update node's address and fingerprint
 
-    MUST do this if `is_update_required` return True.
+    MUST do this if `status` return value == `api.Untracked`.
 
     Arguments:
         node (str): Maya node name
