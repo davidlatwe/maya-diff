@@ -59,7 +59,7 @@ Now, we can answer those three questions:
 
 ### Example Usage
 
-##### Before publish or save
+##### On publish or save
 ```python
 import mdiff.api
 
