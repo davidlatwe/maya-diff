@@ -20,7 +20,7 @@ from .core import (
 
 
 __all__ = (
-    "is_update_required",
+    "status",
     "update_identity",
     "update_fingerprint",
     "lock_identity",
