@@ -57,6 +57,52 @@ Now, we can answer those three questions:
         * Node is duplicated and has been changed
 
 
+### Demo
+
+```python
+import maya.cmds as cmds
+import mdiff.api
+
+node = cmds.polyCube(name="origin")[0]
+# Use matrix as fingerprint
+mhasher = (lambda node: str(cmds.xform(node, query=True, matrix=True)))
+fingerprint = mhasher(node)
+
+# Since this is a new node, renew is a must
+assert mdiff.api.is_update_required(node, fingerprint)
+# Update it
+mdiff.api.update_identity(node, fingerprint)
+
+# Now move the node around and hash it again
+cmds.setAttr(node + ".tx", 5)
+fingerprint = mhasher(node)
+# Let's check it's been changed or not
+assert mdiff.api.is_changed(node, fingerprint)
+# it's been changed but is original, no need to renew
+assert not mdiff.api.is_update_required(node, fingerprint)
+# But we still need to update it's fingerprint
+mdiff.api.update_fingerprint(node, fingerprint)
+
+# Duplicate it !
+clone = cmds.duplicate(node, name="clone")[0]
+# Let's check it's duplicated or not
+assert mdiff.api.is_duplicated(clone)
+# it's duplicated but not changed, no need to renew
+assert not mdiff.api.is_update_required(node, mhasher(node))
+
+# Now move the clone !
+cmds.setAttr(node + ".ty", 10)
+fingerprint = mhasher(clone)
+# Let's check it's been changed or not
+assert mdiff.api.is_changed(clone, fingerprint)
+# it's been changed and is a duplicate, need to renew !
+assert mdiff.api.is_update_required(clone, fingerprint)
+# Update identity and fingerprint
+mdiff.api.update_identity(clone, fingerprint)
+
+```
+
+
 ### Example Usage
 
 ##### On publish or save
@@ -68,14 +114,15 @@ for node in nodes:
     fingerprint = my_hasher(node)
 
     if mdiff.api.is_update_required(node, fingerprint):
-        # do something
-        ...
-
+        ...  # do something
         mdiff.api.update_identity(node, fingerprint)
 
+    elif mdiff.api.is_changed(node, fingerprint):
+        ...  # do something
+        mdiff.api.update_fingerprint(node, fingerprint)
+
     else:
-        # do some other thing
-        ...
+        ...  # do something
 
 mdiff.api.lock_identity(nodes)
 
