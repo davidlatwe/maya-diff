@@ -201,6 +201,7 @@ def on_track(node, fingerprint):
     _add_attr(node, ATTR_ADDRESS)
     _set_attr(node, ATTR_ADDRESS, address)
     on_change(node, fingerprint)
+    on_duplicate(node)
 
 
 def on_change(node, fingerprint):
