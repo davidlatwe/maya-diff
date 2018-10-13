@@ -17,7 +17,7 @@ ATTR_VERIFIER = "verifier"
 ATTR_FINGERPRINT = "fingerprint"
 
 
-def _read_attr(node, attr):
+def _get_attr(node, attr):
     """
     """
     try:
@@ -26,22 +26,46 @@ def _read_attr(node, attr):
         return None
 
 
+def _add_attr(node, attr):
+    """
+    """
+    try:
+        cmds.addAttr(node, longName=attr, dataType="string")
+    except RuntimeError:
+        # Attribute existed
+        return False
+    else:
+        return True
+
+
+def _set_attr(node, attr, value):
+    """
+    """
+    try:
+        cmds.setAttr(node + "." + attr, value, type="string")
+    except RuntimeError:
+        # Attribute existed
+        return False
+    else:
+        return True
+
+
 def read_address(node):
     """
     """
-    return _read_attr(node, ATTR_ADDRESS)
+    return _get_attr(node, ATTR_ADDRESS)
 
 
 def read_verifier(node):
     """
     """
-    return _read_attr(node, ATTR_VERIFIER)
+    return _get_attr(node, ATTR_VERIFIER)
 
 
 def read_fingerprint(node):
     """
     """
-    return _read_attr(node, ATTR_FINGERPRINT)
+    return _get_attr(node, ATTR_FINGERPRINT)
 
 
 def read_uuid(node):
@@ -108,31 +132,19 @@ def is_changed(node, fingerprint):
         return not fingerprint == origin_fingerprint
 
 
-def _add_attr(node, attr):
-    """
-    """
-    try:
-        cmds.addAttr(node, longName=attr, dataType="string")
-    except RuntimeError:
-        # Attribute existed
-        return False
-    else:
-        return True
-
-
 def _update_verifier(node, address):
     """
     """
     _add_attr(node, ATTR_VERIFIER)
     verifier = _generate_verifier(read_uuid(node), address)
-    cmds.setAttr(node + "." + ATTR_VERIFIER, verifier, type="string")
+    _set_attr(node, ATTR_VERIFIER, verifier)
 
 
 def _update_fingerprint(node, fingerprint):
     """
     """
     _add_attr(node, ATTR_FINGERPRINT)
-    cmds.setAttr(node + "." + ATTR_FINGERPRINT, fingerprint, type="string")
+    _set_attr(node, ATTR_FINGERPRINT, fingerprint)
 
 
 def is_update_required(node, fingerprint):
@@ -148,7 +160,7 @@ def update_identity(node, fingerprint):
     """
     _add_attr(node, ATTR_ADDRESS)
     address = _generate_address()
-    cmds.setAttr(node + "." + ATTR_ADDRESS, address, type="string")
+    _set_attr(node, ATTR_ADDRESS, address)
     _update_fingerprint(node, fingerprint)
 
 
