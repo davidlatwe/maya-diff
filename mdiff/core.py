@@ -168,9 +168,9 @@ def is_changed(node, fingerprint):
 
 
 def status(node, fingerprint):
-    """Report node status
+    """Report `node` current state
 
-    Return node status flag (int), in range 0 - 3:
+    Return node state flag (int), in range 0 - 3:
         0 == api.Clean
         1 == api.Changed
         2 == api.Duplicated
@@ -181,7 +181,7 @@ def status(node, fingerprint):
         fingerprint (str): Maya node's hash value
 
     Returns:
-        (int): Node status flag
+        (int): Node state flag
 
     """
     return is_changed(node, fingerprint) | (is_duplicated(node) << 1)
@@ -239,7 +239,7 @@ def update_verifier(node):
 def lock_identity(nodes):
     """Update input nodes' verifier
 
-    MUST do this before file save or publish.
+    MUST do this on file-import.
 
     Arguments:
         nodes (list): A list of Maya node name
